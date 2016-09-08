@@ -100,41 +100,31 @@ void filemanager::removeArtistFromLogFile(const char *nazwapliku, int num, QList
 
 
     QList<QString>::iterator i;
-    QList <QString> temp_list;
+
     QString temp_str;
 
     qDebug() << num;
 
     if(num > 0 && num <= _list->size()){
 
+        fout.open(nazwapliku,  std::ofstream::out | std::ofstream::trunc);
+        fout.seekp(0,std::ios_base::beg);
+
         int j;
         for (j = 0, i = _list->begin(); j < _list->size(),  i != _list->end(); j++, ++i){
             temp_str = *i;
             if( j+1 == num){
-                //msg_to_return = temp_str;
-                 qDebug() << "Usunieto "<<  temp_str;
-                 msg_label->setText("Usunieto: "+ temp_str);
+                qDebug() << "Usunieto "<<  temp_str;
+                msg_label->setText("Usunieto: "+ temp_str);
                 continue;
-
             }else {
-                temp_list.append(temp_str);
-                //qDebug() << temp_str;
+                fout <<j+1<<". "<< temp_str.toStdString() ;
+                if(j != _list->size() -2){
+                    fout << endl;
+                }
             }
         }
 
-        fout.open(nazwapliku,  std::ofstream::out | std::ofstream::trunc);
-        fout.seekp(0,std::ios_base::beg);
-
-        for (j = 0, i = temp_list.begin();j < temp_list.size(),  i != temp_list.end();j++, ++i){
-            temp_str = *i;
-            fout <<j+1<<". "<< temp_str.toStdString() ;
-
-            if(j != temp_list.size() - 1){
-                fout << endl;
-            }
-
-            qDebug() << temp_str;
-        }
         fout.close();
     } else {
         msg_label->setText("Blad: liczba poza zakresem ");
