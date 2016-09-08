@@ -34,7 +34,7 @@ public:
 
 private:
 
-    QLinkedList <QString> artist_list;
+    QList <QString> artist_list;
 
 
 
@@ -46,6 +46,7 @@ public slots:
      void on_start_clicked(bool x);
      void on_main_tab_changed(int n);
      void on_enter_pushed(void);
+     void on_remove_pushed(bool x);
 };
 
 #endif // APPENGINE_H

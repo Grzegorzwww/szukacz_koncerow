@@ -4,8 +4,9 @@
 #include <QObject>
 #include <QDebug>
 #include <QString>
-#include <QLinkedList>
-
+#include <QLabel>
+#include <QList>
+#include <QFile>
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
@@ -18,8 +19,9 @@ class filemanager : public QObject
     Q_OBJECT
 public:
     explicit filemanager(QObject *parent = 0);
-    void readArtistFromLogFile(const char *nazwapliku, QLinkedList<QString> *artist_list);
+    void readArtistFromLogFile(const char *nazwapliku, QList<QString> *artist_list);
     void addArtistToLogFile(const char *nazwapliku, QString *artist_name);
+    void removeArtistFromLogFile(const char *nazwapliku, int num, QList<QString> *_list, QLabel *msg_label);
 
 private:
 
