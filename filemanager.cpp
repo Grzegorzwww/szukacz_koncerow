@@ -14,10 +14,16 @@ void filemanager::openFile(const char *nazwapliku)
 
 bool filemanager::fileExists(const char *str)
 {
-    ifstream plik(str);
-    bool to_return = plik;
-    plik.close();
-    return to_return;
+    QFile Fout(str);
+    if(Fout.exists()){
+        return true;
+    }
+    else {
+
+        return false;
+    }
+   Fout.close();
+
 }
 void filemanager::readArtistFromLogFile(const char *nazwapliku, QList <QString> *artist_list){
         char ch;
@@ -31,7 +37,7 @@ void filemanager::readArtistFromLogFile(const char *nazwapliku, QList <QString> 
             }
     fin.close();
     }else {
-        qDebug() <<"plik nie istnieje, nie dodano zadnego wykonawcy";
+        qDebug() <<QString::fromUtf8(nazwapliku) << "plik nie istnieje, nie dodano zadnego wykonawcy";
     }
 }
 QString filemanager::convertToQString(std::string *str){
@@ -96,13 +102,10 @@ void filemanager::addArtistToLogFile(const char *nazwapliku, QString *artist_nam
     }
 }
 
-void filemanager::removeArtistFromLogFile(const char *nazwapliku, int num, QList<QString> *_list, QLabel *msg_label){
-
+void filemanager::removeArtistFromLogFile(const char *nazwapliku, int num, QList<QString> *_list){
 
     QList<QString>::iterator i;
-
     QString temp_str;
-
     qDebug() << num;
 
     if(num > 0 && num <= _list->size()){
@@ -115,7 +118,7 @@ void filemanager::removeArtistFromLogFile(const char *nazwapliku, int num, QList
             temp_str = *i;
             if( j+1 == num){
                 qDebug() << "Usunieto "<<  temp_str;
-                msg_label->setText("Usunieto: "+ temp_str);
+                //msg_label->setText("Usunieto: "+ temp_str);
                 continue;
             }else {
                 fout <<j+1<<". "<< temp_str.toStdString() ;
@@ -124,14 +127,19 @@ void filemanager::removeArtistFromLogFile(const char *nazwapliku, int num, QList
                 }
             }
         }
-
         fout.close();
     } else {
-        msg_label->setText("Blad: liczba poza zakresem ");
+
     }
 
 
 }
+/*
+ostream & operator<<(ostream &os, filemanager &in){
+
+     os << in.str;
+     return os;
+}*/
 
 
 

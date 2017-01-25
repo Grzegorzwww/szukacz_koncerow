@@ -10,7 +10,7 @@ NameParser::~NameParser() {
 
 }
 
-QString NameParser::generateLink(QString name){
+QString NameParser::generateLastFmLink(QString name){
     QString temp = "http://www.last.fm/music/";
     name.replace(" ", "+");
     name = name+"/+events";
@@ -19,4 +19,14 @@ QString NameParser::generateLink(QString name){
     // qDebug() << temp;
     return temp;
 }
+
+QString NameParser::generateFacebookLink(QString name){
+    QString temp = "https://graph.facebook.com/";
+    temp = temp+name;
+    temp = temp+"?fields=events,name&access_token="+FB_APP_KEY+"|"+FB_APP_SECRET_KEY;
+    //qDebug() << temp;
+    return temp;
+}
+
+
 

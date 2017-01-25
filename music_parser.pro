@@ -18,18 +18,27 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     nameparser.cpp \
     appengine.cpp \
-    htmlparser.cpp \
     event_token.cpp \
-    filemanager.cpp
+    filemanager.cpp \
+    fbparser.cpp \
+    lastfm_parser.cpp \
+    appsetting.cpp \
+    graphics.cpp \
+    filelog.cpp
 
 HEADERS  += mainwindow.h \
     nameparser.h \
     appengine.h \
-    htmlparser.h \
     event_token.h \
-    filemanager.h
+    filemanager.h \
+    fbparser.h \
+    lastfm_parser.h \
+    appsetting.h \
+    graphics.h \
+    filelog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    appsetting.ui
 
 CONFIG += mobility
 MOBILITY = 

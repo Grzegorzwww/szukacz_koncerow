@@ -9,13 +9,15 @@
 #include <string>
 #include <event_token.h>
 #include <iostream>
+#include <QTableView>
+
 
 using namespace std;
-class HTMLParser : public QObject
+class LASTFMParser : public QObject
 {
     Q_OBJECT
 public:
-    explicit HTMLParser(QObject *parent , QString link);
+    explicit LASTFMParser(QObject *parent , QString link);
 
 
 
@@ -24,11 +26,13 @@ public:
 
     QString generateEventRecord(int no);
     int getMaxEventsRecords(void);
+    ArtistToken *getArtistTokenPtr()  const  {return artist_token; }
 
 private:
     QString data_to_parse;
 
     ArtistToken *artist_token;
+
 
 
     void saveEventDate(QString *str, long position);

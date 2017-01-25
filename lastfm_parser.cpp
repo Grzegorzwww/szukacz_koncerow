@@ -1,12 +1,12 @@
-#include "htmlparser.h"
+#include "lastfm_parser.h"
 
 using namespace std;
 
-HTMLParser::HTMLParser(QObject *parent, QString link) : QObject(parent)
+LASTFMParser::LASTFMParser(QObject *parent, QString link) : QObject(parent)
 {
 
     artist_token = new ArtistToken();
-
+    artist_token->token_type = LASTFM_TOKEN;
     QNetworkAccessManager manager;
     //QNetworkReply *response = manager.get(QNetworkRequest(QUrl("http://www.zmt.tarnow.pl/")));
     qDebug() << link;
@@ -16,16 +16,14 @@ HTMLParser::HTMLParser(QObject *parent, QString link) : QObject(parent)
     event.exec();
 
     data_to_parse = response->readAll();
-     removePolishCharacters(&data_to_parse);
-    //qDebug() << data_to_parse;
+    removePolishCharacters(&data_to_parse);
 
 }
 
 
 
-void HTMLParser::parseDataFromHTMLFile(void){
+void LASTFMParser::parseDataFromHTMLFile(void){
     int i;
-
     if(data_to_parse.isEmpty()){
         qDebug() <<"Error: Fail to get web content ";
     }
@@ -79,14 +77,14 @@ void HTMLParser::parseDataFromHTMLFile(void){
     }
 }
 
-void HTMLParser::saveEventDate(QString *str, long position){
+void LASTFMParser::saveEventDate(QString *str, long position){
     int i;
     for(i = 0; i < 10; i++){
         str->append( data_to_parse.at(position+i+16).toLatin1());
     }
 }
 
-void HTMLParser::saveEventName(QString *str, long position){
+void LASTFMParser::saveEventName(QString *str, long position){
     int i;
 
     long index = data_to_parse.indexOf("events-list-item-venue--title", position);
@@ -103,7 +101,7 @@ void HTMLParser::saveEventName(QString *str, long position){
 
 }
 
-void HTMLParser::saveEventCity(QString *str, long position){
+void LASTFMParser::saveEventCity(QString *str, long position){
     int i;
     long index = data_to_parse.indexOf("events-list-item-venue--city", position);
     for(i = 0; i < 60; i++){
@@ -115,7 +113,7 @@ void HTMLParser::saveEventCity(QString *str, long position){
     }
 
 }
-void HTMLParser::saveEventCountry(QString *str, long position){
+void LASTFMParser::saveEventCountry(QString *str, long position){
     int i;
     long index = data_to_parse.indexOf("events-list-item-venue--country", position);
     for(i = 0; i < 60; i++){
@@ -127,17 +125,17 @@ void HTMLParser::saveEventCountry(QString *str, long position){
 
 }
 
-QString HTMLParser::generateEventRecord(int no){
+QString LASTFMParser::generateEventRecord(int no){
 
 
     if(artist_token->occurance_no == 0){
-        QString temp_str = "";
+        QString temp_str = "LAST.FM: ";
         temp_str = temp_str + compensText(artist_token->articst_name, 30, 1);
-        temp_str = temp_str + compensText(" - We don't have any upcoming events.", 50, 1);
+        temp_str = temp_str + compensText(" - Nie odnaleziono wydarzenia dla tego wykonawcy.", 60, 1);
         return temp_str;
     } else {
 
-        QString temp_str = "";
+        QString temp_str = "LAST.FM: ";
         temp_str = temp_str + compensText(artist_token->articst_name, 20, 1);
         temp_str = temp_str + compensText(artist_token->events_date[no], 15, 1);
         temp_str = temp_str + compensText(artist_token->events_name[no], 50, 1);
@@ -149,7 +147,9 @@ QString HTMLParser::generateEventRecord(int no){
     }
 }
 
-QString HTMLParser::compensText(QString text, int total_space, int ofset){
+
+
+QString LASTFMParser::compensText(QString text, int total_space, int ofset){
     int i;
     QString temp_str = " ";
     if(ofset + text.length() < total_space){
@@ -164,7 +164,7 @@ QString HTMLParser::compensText(QString text, int total_space, int ofset){
     return temp_str;
 }
 
-void HTMLParser::removePolishCharacters(QString *str){
+void LASTFMParser::removePolishCharacters(QString *str){
 
     str->replace("Ą","A");
     str->replace("Ć","C");
@@ -186,11 +186,12 @@ void HTMLParser::removePolishCharacters(QString *str){
     str->replace("ż","z");
 
 }
-void HTMLParser::getArtistName(QString str){
+void LASTFMParser::getArtistName(QString str){
    artist_token->articst_name = str;
 }
 
-int HTMLParser::getMaxEventsRecords(void){
+int LASTFMParser::getMaxEventsRecords(void){
     return artist_token->occurance_no;
 }
+
 

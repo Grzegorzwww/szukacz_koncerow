@@ -1,132 +1,134 @@
 #include "appengine.h"
 #include "ui_mainwindow.h"
 
-AppEngine::AppEngine(Ui::MainWindow *_ui, QObject *parent):
-    ui(_ui)
+AppEngine::AppEngine(Ui::MainWindow *_ui, QObject *parent):ui(_ui), my_parent(parent)
+
 {
     qDebug() << "AppEngine";
-    ui->tabWidget->setCurrentIndex(2);
-    actual_tab_set = 2;
+
     found_events = 0;
-    ui->checkBox->setChecked(true);
-    ui->checkBox_2->setChecked(true);
-    ui->checkBox_3->setChecked(true);
-    ui->radioButton_2->setChecked(true);
-
-
     name_parser  = new NameParser();
-    file_manager = new filemanager();
-    my_parent = new QObject(parent);
+    progrescounter = 0;
+    find_counter = 0;
 
+    readArtistFromLogFile("artist_log", &artist_list);
+    readArtistFromLogFile("fb_artist_log", &fb_artist_list);
 
-    file_manager->readArtistFromLogFile("artist_log", &artist_list);
-    ui->progressBar->setMaximum(artist_list.size() - 1);
-
-
-
-    connect(ui->pushButton_2, SIGNAL(clicked(bool)), this, SLOT(on_dodaj_clicked(bool)));
-    connect(ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(on_start_clicked(bool)));
-    connect(ui->pushButton_3, SIGNAL(clicked(bool)), this, SLOT(on_remove_pushed(bool)));
-
-    connect(ui->tabWidget, SIGNAL( currentChanged(int )), this, SLOT(on_main_tab_changed(int)));
+    connect(this, SIGNAL(lastfm_downloading_finshed(bool)), this, SLOT(on_start_facebook_clicked(bool)));
+    connect(this, SIGNAL(facebook_downloading_finshed(bool )), this, SLOT(all_test_finished(bool)));
+    connect(this, SIGNAL(downloading_finshed(bool )), this, SLOT(all_test_finished(bool)));
 
 }
 
 
-void AppEngine::on_dodaj_clicked(bool x){
 
-    qDebug() << "on_dodaj_clicked"<<x;
-    QString artist_name = ui->lineEdit->text();
-    artist_name = artist_name.trimmed();
-    if(!artist_name.isEmpty()){
-        ui->lineEdit->clear();
-        file_manager->addArtistToLogFile("artist_log", &artist_name);
-        ui->label_4->setText("Dodano: "+artist_name);
-        artist_list.clear();
-        file_manager->readArtistFromLogFile("artist_log", &artist_list);
-
-        ui->progressBar->setMaximum(artist_list.size() - 1);
-    }
-    else
-        ui->label_4->setText("BLAD: Nie wpisano wykonawcy");
-}
-
-void AppEngine::on_start_clicked(bool x){
-    ui->tabWidget->setCurrentIndex(2);
-
+void AppEngine::on_start_lastfm_clicked(bool x){
+    qDebug() << "on_start_lastfm_clicked";
+    search_in_progres = true;
     QList<QString>::iterator i;
-    int j = 0;
-    ui->textBrowser->clear();
+    progrescounter = 0;
+    find_counter = 0;
     for (i = artist_list.begin(); i != artist_list.end(); ++i){
         qDebug() << *i << endl;
         QString artist_name = *i;
-        ui->label_3->setText(artist_name);
-        ui->progressBar->setValue(j++);
+        emit add_message_info_label("SPRAWDZENIE [LastFm]: "+artist_name);
+        emit add_to_progress_bar(++progrescounter);
+        lastfm_parser = new LASTFMParser( my_parent, name_parser->generateLastFmLink(artist_name ));
+        lastfm_parser->getArtistName(artist_name );
+        lastfm_parser->parseDataFromHTMLFile();
 
-        html_parser  = new HTMLParser( my_parent, name_parser->generateLink(artist_name ));
-        html_parser->getArtistName(artist_name );
-        html_parser->parseDataFromHTMLFile();
+        if(lastfm_parser->getMaxEventsRecords() == 0){
+            fillEmptyTabResultRecord(lastfm_parser->getArtistTokenPtr(), "last.fm");
+        }else {
 
-        int i;
-        if(html_parser->getMaxEventsRecords() == 0){
-            if(ui->radioButton->isChecked()){
-                QString temp_str = "<font color=\"red\">"+html_parser->generateEventRecord(i)+"</font>";
-                ui->textBrowser->append(temp_str);
-            }else {
-                ui->textBrowser->append(html_parser->generateEventRecord(i));
-            }
-
-
+            fillTabResultRecord(lastfm_parser->getArtistTokenPtr(), "last.fm");
         }
-        for(i = 0; i < html_parser->getMaxEventsRecords(); i++){
-            found_events++;
-            if(ui->radioButton->isChecked()){
-                QString temp_str = "<font color=\"green\">"+html_parser->generateEventRecord(i)+"</font>";
-                ui->textBrowser->append(temp_str);
-            }else {
-                ui->textBrowser->append(html_parser->generateEventRecord(i));
-            }
+
+        find_counter += lastfm_parser->getArtistTokenPtr()->occurance_no;
+        delete  lastfm_parser;
+        if( search_in_progres == false){
+            emit downloading_finshed(true);
+            break;
         }
-        delete  html_parser;
     }
-    ui->label_3->setText("Dla podanych wykonawcow znaleziono: "+QString::number( found_events)+" koncerty.");
+    search_in_progres = false;
+    emit lastfm_downloading_finshed(true);
 }
 
-void AppEngine::on_main_tab_changed(int n){
-    actual_tab_set = n;
-    if(n = 1){
-        artist_list.clear();
-        file_manager->readArtistFromLogFile("artist_log", &artist_list);
-        QList<QString>::iterator i;
-        int j = 1;
-         ui->textBrowser_2->clear();
-        for (i = artist_list.begin(); i != artist_list.end(); ++i){
-             ui->textBrowser_2->append(QString::number(j)+". "+*i);
-             j++;
+
+void AppEngine::on_start_facebook_clicked(bool x){
+    QList<QString>::iterator i;
+    search_in_progres = true;
+    int j = 0;
+    qDebug() << "fb_artist_list.size() " <<fb_artist_list.size();
+    for (i = fb_artist_list.begin(); i != fb_artist_list.end(); ++i  ){
+
+        fb_artist_token = new ArtistToken();
+        fb_artist_token->token_type = FACEBOOK_TOKEN;
+        QString artist_name = *i;
+        emit add_message_info_label("SPRAWDZENIE [Facebook]: "+artist_name);
+        emit add_to_progress_bar(++progrescounter);
+        fb_parser = new FBparser(my_parent, name_parser->generateFacebookLink(artist_name));
+        fb_parser->getArtistName(artist_name, fb_artist_token);
+        fb_parser->parseDataFromJSONFile( fb_artist_token);
+
+        if(fb_artist_token->occurance_no == 0){
+            fillEmptyTabResultRecord( fb_artist_token, "facebook");
         }
-
-
+        else if(fb_artist_token->occurance_no > 0){
+            fillTabResultRecord( fb_artist_token, "facebook");
+        }
+        find_counter += fb_artist_token->occurance_no;
+        delete fb_parser;
+        delete fb_artist_token;
+        if( search_in_progres == false){
+            emit downloading_finshed(true);
+            break;
+        }
     }
+    search_in_progres = false;
+    emit  facebook_downloading_finshed(true);
 }
- void AppEngine::on_enter_pushed(void){
-     qDebug() << "on_enter_pushed()";
-     if(actual_tab_set == 0){
-         on_dodaj_clicked(true);
-     }
 
- }
 
- void AppEngine::on_remove_pushed(bool x){
+void AppEngine::all_test_finished(bool x){
+    int all_artist = artist_list.size() + fb_artist_list.size();
+    add_message_info_label("Zakonczono przeszukiwanie "+QString::number(all_artist)+" wykonawcow. Znaleziono: "+QString::number(find_counter)+" koncerów");
 
-     QString num_to_remove = ui->lineEdit_2->text();
-     ui->lineEdit_2->clear();
-     num_to_remove = num_to_remove.trimmed();
-     int num = num_to_remove.toInt();
-     artist_list.clear();
-     file_manager->readArtistFromLogFile("artist_log", &artist_list);
-     //ui->label_6->setText("Usunięto:"+ file_manager->removeArtistFromLogFile("artist_log", num, &artist_list));
-     file_manager->removeArtistFromLogFile("artist_log", num, &artist_list, ui->label_6 );
- }
+}
+
+
+bool AppEngine::fillTabResultRecord( ArtistToken *artist_token, QString source){
+
+    artist_token->source = source;
+    emit artist_record(*artist_token);
+
+}
+
+bool AppEngine::fillEmptyTabResultRecord(ArtistToken *artist_token, QString source){
+    artist_token->source = source;
+    emit empty_artist_record(*artist_token);
+}
+
+
+
+void AppEngine::on_stop_searching_clicked(bool x){
+    search_in_progres = false;
+}
+void AppEngine::on_reload_artist_list(){
+    qDebug() << "on_reload_artist_list";
+    artist_list.clear();
+    fb_artist_list.clear();
+    readArtistFromLogFile("artist_log", &artist_list);
+    readArtistFromLogFile("fb_artist_log", &fb_artist_list);
+}
+
+
+
+
+
+
+
 
 
 
