@@ -2,14 +2,14 @@
 
 Graphics::Graphics(Ui::MainWindow *_ui, QWidget *parent): ui(_ui), my_parent(parent)
 {
-    ui->tabWidget->setCurrentIndex(2);
+    ui->tabWidget->setCurrentIndex(1);
     ui->progressBar->setValue(0);
     actual_event_was_find = false;
 
 
     _result_table_model = new QStandardItemModel(0,6,this);
-    _facebook_table_model = new QStandardItemModel(0,2,this);
-    _lastfm_table_model = new QStandardItemModel(0,2,this);
+   // _facebook_table_model = new QStandardItemModel(0,2,this);
+    _artist_table_model = new QStandardItemModel(0,2,this);
     actual_date = new QDate(QDate::currentDate());
 
     remove_from_lastfm_list = new QAction("Usuń z listy", parent);
@@ -26,10 +26,10 @@ Graphics::Graphics(Ui::MainWindow *_ui, QWidget *parent): ui(_ui), my_parent(par
 
 
     createTableWidged();
-    refresh_lastfm_artist_tab();
+    refresh_artist_list_tab();
     refresh_facebook_artist_tab();
 
-    actualizeProgressBar(artist_list.size() , fb_artist_list.size());
+    actualizeProgressBar(lastfm_artist_list.size() , fb_artist_list.size());
 
     connect(ui->pushButton_5, SIGNAL(clicked(bool)), this, SLOT(on_clear_result_list(bool)));
     connect(ui->pushButton_2, SIGNAL(clicked(bool)), this, SLOT(on_dodaj_lastfm_clicked(bool)));
@@ -40,7 +40,7 @@ Graphics::Graphics(Ui::MainWindow *_ui, QWidget *parent): ui(_ui), my_parent(par
     connect(rename_from_lastfm_list, SIGNAL(triggered()), this, SLOT(on_rename_from_last_fm()));
     connect(rename_from_facebook_list, SIGNAL(triggered()), this, SLOT(on_rename_from_facebook()));
     connect(ui->tableView_3, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(on_tableView_3_customContextMenuRequested(QPoint)));
-    connect(ui->tableView_2, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(on_tableView_2_customContextMenuRequested(QPoint)));
+    //connect(ui->tableView_2, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(on_tableView_2_customContextMenuRequested(QPoint)));
 
 }
 Graphics::~Graphics(){
@@ -65,24 +65,33 @@ void  Graphics::createTableWidged(){
     ui->tableView->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::Fixed);
     ui->tableView->horizontalHeader()->resizeSection(0, 80);
 
-    _model_items.clear();
-    _model_items.append("Wykonawcy ");
-    _model_items.append("Dodatkowe infomacje ");
-    _facebook_table_model->setHorizontalHeaderLabels(_model_items);
-    ui->tableView_2->setModel(_facebook_table_model);
-    ui->tableView_2->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::Stretch);
-    ui->tableView_2->horizontalHeader()->setSectionResizeMode( 1, QHeaderView::Fixed);
-    ui->tableView_2->horizontalHeader()->resizeSection(1, 200);
+//    _model_items.clear();
+//    _model_items.append("Wykonawcy ");
+//    _model_items.append("Dodatkowe infomacje ");
+//    _facebook_table_model->setHorizontalHeaderLabels(_model_items);
+//    ui->tableView_2->setModel(_facebook_table_model);
+//    ui->tableView_2->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::Stretch);
+//    ui->tableView_2->horizontalHeader()->setSectionResizeMode( 1, QHeaderView::Fixed);
+//    ui->tableView_2->horizontalHeader()->resizeSection(1, 200);
 
 
     _model_items.clear();
     _model_items.append("Wykonawcy ");
-    _model_items.append("Dodatkowe infomacje ");
-    _lastfm_table_model->setHorizontalHeaderLabels(_model_items);
-    ui->tableView_3->setModel(_lastfm_table_model);
-    ui->tableView_3->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::Stretch);
+    _model_items.append("Nazwa Last.fm ");
+    _model_items.append("Nazwa Facebok.com ");
+    _model_items.append("Nazwa SongKick.com ");
+    _artist_table_model->setHorizontalHeaderLabels(_model_items);
+    ui->tableView_3->setModel(_artist_table_model);
+
+    ui->tableView_3->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::Fixed);
+    ui->tableView_3->horizontalHeader()->resizeSection(0,300);
     ui->tableView_3->horizontalHeader()->setSectionResizeMode( 1, QHeaderView::Fixed);
-    ui->tableView_3->horizontalHeader()->resizeSection(1, 200);
+     ui->tableView_3->horizontalHeader()->resizeSection(1,158);
+     ui->tableView_3->horizontalHeader()->setSectionResizeMode( 2, QHeaderView::Fixed);
+     ui->tableView_3->horizontalHeader()->resizeSection(2,158);
+      ui->tableView_3->horizontalHeader()->setSectionResizeMode( 3, QHeaderView::Fixed);
+       ui->tableView_3->horizontalHeader()->resizeSection(3,158);
+
 
 }
 void Graphics::fillRecord(int no, ArtistToken token){
@@ -199,9 +208,9 @@ void Graphics::on_dodaj_lastfm_clicked(bool x){
         ui->lineEdit->clear();
         addArtistToLogFile("artist_log", &artist_name);
         ui->label_4->setText("Dodano: "+artist_name);
-        artist_list.clear();
-        readArtistFromLogFile("artist_log", &artist_list);
-        refresh_lastfm_artist_tab();
+        lastfm_artist_list.clear();
+        readArtistFromLogFile("artist_log", &lastfm_artist_list);
+        refresh_artist_list_tab();
         //actualizeProgressBar(artist_list.size() , fb_artist_list.size());
     }
     else
@@ -218,7 +227,7 @@ void Graphics::on_dodaj_facebook_clicked(bool x){
         fb_artist_list.clear();
         readArtistFromLogFile("fb_artist_log", &fb_artist_list);
         refresh_facebook_artist_tab();
-        ui->progressBar->setMaximum(artist_list.size() - 1);
+        ui->progressBar->setMaximum(lastfm_artist_list.size() - 1);
         // actualizeProgressBar(artist_list.size() , fb_artist_list.size());
     }
     else
@@ -226,11 +235,10 @@ void Graphics::on_dodaj_facebook_clicked(bool x){
 }
 void Graphics::on_remove_lastfm_pushed(bool x){
 
-
-    artist_list.clear();
-    readArtistFromLogFile("artist_log", &artist_list);
-    removeArtistFromLogFile("artist_log", 1, &artist_list );
-    refresh_lastfm_artist_tab();
+    lastfm_artist_list.clear();
+    readArtistFromLogFile("artist_log", &lastfm_artist_list);
+    removeArtistFromLogFile("artist_log", 1, &lastfm_artist_list );
+    refresh_artist_list_tab();
 }
 
 void Graphics::on_remove_facebook_pushed(bool x){
@@ -245,34 +253,37 @@ void Graphics::on_remove_facebook_pushed(bool x){
 void Graphics::on_main_tab_changed(int n){
     qDebug()<<"on_main_tab_changed " << QString::number(n);
     if(n == 0){
-        refresh_lastfm_artist_tab();
+        refresh_artist_list_tab();
     }
     if(n == 1){
         refresh_facebook_artist_tab();
     }
 }
 
-void Graphics::refresh_lastfm_artist_tab(){
+void Graphics::refresh_artist_list_tab(){
     while( ui->tableView_3->model()->rowCount() > 0 ){
         ui->tableView_3->model()->removeRow(0);
     }
-    artist_list.clear();
-    readArtistFromLogFile("artist_log", &artist_list);
+    lastfm_artist_list.clear();
+    readArtistFromLogFile("artist_log", &lastfm_artist_list);
+    readArtistFromLogFile("fb_artist_log", &fb_artist_list);
+
     QList<QStandardItem *> newRow;
     QList<QString>::iterator i;
-    for (i = artist_list.begin(); i != artist_list.end(); ++i){
+    for (i = lastfm_artist_list.begin(); i != lastfm_artist_list.end(); ++i){
         newRow.clear();
         newRow.append(new QStandardItem(*i));
         newRow.append(new QStandardItem(" - "));
-        _lastfm_table_model->appendRow(newRow);
+        _artist_table_model->appendRow(newRow);
     }
     emit reload_list();
 }
+
 void Graphics::refresh_facebook_artist_tab(){
 
-    while( ui->tableView_2->model()->rowCount() > 0 ){
-        ui->tableView_2->model()->removeRow(0);
-    }
+//    while( ui->tableView_2->model()->rowCount() > 0 ){
+//        ui->tableView_2->model()->removeRow(0);
+//    }
     fb_artist_list.clear();
     readArtistFromLogFile("fb_artist_log", &fb_artist_list);
     QList<QStandardItem *> newRow;
@@ -281,7 +292,7 @@ void Graphics::refresh_facebook_artist_tab(){
         newRow.clear();
         newRow.append(new QStandardItem(*i));
         newRow.append(new QStandardItem(" - "));
-        _facebook_table_model->appendRow(newRow);
+//        _facebook_table_model->appendRow(newRow);
     }
     emit reload_list();
 }
@@ -295,29 +306,29 @@ void Graphics::on_remove_from_last_fm(){
         QModelIndex index = selection.at(i);
 
         int num = index.row();
-        artist_list.clear();
-        readArtistFromLogFile("artist_log", &artist_list);
-        if (QMessageBox::question(my_parent, "Czy usunąć?", "Napewno chcesz usunąc wykonawcę:  "+artist_list.at(num)+" ?") == QMessageBox::Yes){
-            removeArtistFromLogFile("artist_log", num+1, &artist_list );
+        lastfm_artist_list.clear();
+        readArtistFromLogFile("artist_log", &lastfm_artist_list);
+        if (QMessageBox::question(my_parent, "Czy usunąć?", "Napewno chcesz usunąc wykonawcę:  "+lastfm_artist_list.at(num)+" ?") == QMessageBox::Yes){
+            removeArtistFromLogFile("artist_log", num+1, &lastfm_artist_list );
         }
-        refresh_lastfm_artist_tab();
+        refresh_artist_list_tab();
     }
 }
 
 void Graphics::on_remove_from_facebook(){
     qDebug() << "on_remove_from_facebook";
-    QModelIndexList selection = ui->tableView_2->selectionModel()->selectedRows();
-    for(int i=0; i< selection.count(); i++)
-    {
-        QModelIndex index = selection.at(i);
-        int num = index.row();
-        fb_artist_list.clear();
-        readArtistFromLogFile("fb_artist_log", &fb_artist_list);
-        if (QMessageBox::question(my_parent, "Czy usunąć?", "Napewno chcesz usunąc wykonawcę:  "+fb_artist_list.at(num)+" ?") == QMessageBox::Yes){
-            removeArtistFromLogFile("fb_artist_log", num+1, &fb_artist_list );
-        }
-        refresh_facebook_artist_tab();
-    }
+    //QModelIndexList selection = ui->tableView_2->selectionModel()->selectedRows();
+//    for(int i=0; i< selection.count(); i++)
+//    {
+//        QModelIndex index = selection.at(i);
+//        int num = index.row();
+//        fb_artist_list.clear();
+//        readArtistFromLogFile("fb_artist_log", &fb_artist_list);
+//        if (QMessageBox::question(my_parent, "Czy usunąć?", "Napewno chcesz usunąc wykonawcę:  "+fb_artist_list.at(num)+" ?") == QMessageBox::Yes){
+//            removeArtistFromLogFile("fb_artist_log", num+1, &fb_artist_list );
+//        }
+//        refresh_facebook_artist_tab();
+//    }
 }
 void Graphics::on_rename_from_last_fm(){
 
@@ -345,7 +356,7 @@ void Graphics::on_tableView_3_customContextMenuRequested(const QPoint &pos)
 void Graphics::on_tableView_2_customContextMenuRequested(const QPoint &pos)
 {
     qDebug() << "on_tableView_2_customContextMenuRequested";
-    facebook_list_menu->popup(ui->tableView_2->viewport()->mapToGlobal(pos));
+   // facebook_list_menu->popup(ui->tableView_2->viewport()->mapToGlobal(pos));
 }
 void Graphics::actualizeProgressBar(int artist_last_fm, int artist_facebook){
     ui->progressBar->setMaximum((artist_last_fm - 1) + (artist_facebook - 1)  );

@@ -31,7 +31,7 @@ public:
 
 private:
       QStandardItemModel *_result_table_model;
-       QStandardItemModel *_lastfm_table_model;
+       QStandardItemModel *_artist_table_model;
       QStandardItemModel *_facebook_table_model;
       QDate *actual_date;
       stettings_t app_stettings;

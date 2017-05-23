@@ -43,7 +43,6 @@ void AppEngine::on_start_lastfm_clicked(bool x){
 
             fillTabResultRecord(lastfm_parser->getArtistTokenPtr(), "last.fm");
         }
-
         find_counter += lastfm_parser->getArtistTokenPtr()->occurance_no;
         delete  lastfm_parser;
         if( search_in_progres == false){

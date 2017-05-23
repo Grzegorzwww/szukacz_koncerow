@@ -23,10 +23,10 @@ AppSetting::AppSetting(QWidget *parent) :
 
 
 
-    for(int i = 1; i < 8; i++){
-        ui->comboBox->addItem(QDate::longDayName(i));
-         ui->comboBox_2->addItem(QDate::longDayName(i));
-    }
+//    for(int i = 1; i < 8; i++){
+//        ui->comboBox->addItem(QDate::longDayName(i));
+//         ui->comboBox_2->addItem(QDate::longDayName(i));
+//    }
 
 
 
@@ -90,19 +90,6 @@ void AppSetting::on_settings_changed(bool x){
         app_stettings.auto_scroll = false;
     }
 
-    if(ui->radioButton_7->isChecked()){
-        app_stettings.save_in_file = true;
-    }else if(ui->radioButton_8->isChecked()){
-        app_stettings.save_in_file = false;
-    }
-
-    app_stettings.string_path = ui->lineEdit->text();
-
-
-    app_stettings.first_day.no = ui->comboBox->currentIndex()+1;
-    app_stettings.first_day.long_day_name = ui->comboBox->currentText();
-    app_stettings.second_day.no = ui->comboBox_2->currentIndex()+1;
-    app_stettings.second_day.long_day_name = ui->comboBox_2->currentText();
     saveSettings();
 
 
@@ -145,13 +132,7 @@ void AppSetting::on_settings_changed(bool x){
         ui->radioButton_6->setChecked(true);
     }
 
-    if(app_stettings.save_in_file == true){
-        ui->radioButton_7->setChecked(true);
-        ui->radioButton_8->setChecked(false);
-    }else if(app_stettings.save_in_file == false){
-        ui->radioButton_7->setChecked(false);
-        ui->radioButton_8->setChecked(true);
-    }
+
 
     if(app_stettings.only_actual == true){
         ui->radioButton_3->setChecked(true);
@@ -161,9 +142,6 @@ void AppSetting::on_settings_changed(bool x){
         ui->radioButton_4->setChecked(true);
     }
 
-    ui->lineEdit->setText(app_stettings.string_path );
-    ui->comboBox->setCurrentIndex(app_stettings.first_day.no-1);
-    ui->comboBox_2->setCurrentIndex(app_stettings.second_day.no-1);
 
  }
 
@@ -172,21 +150,13 @@ void AppSetting::on_settings_changed(bool x){
 
      QString m_sSettingsFile = QApplication::applicationDirPath()/*.left(1)*/ + "/settings.ini";
      qDebug() << m_sSettingsFile;
-    // QSettings settings(m_sSettingsFile,QSettings::NativeFormat);    // qt linux format
     QSettings settings(m_sSettingsFile, QSettings::IniFormat);    // windows
      settings.beginGroup(SETTINGS_SEARCHING_GROUP);
      settings.setValue(SETTINGS_COUNTRY, app_stettings.country);
      settings.setValue(SETTINGS_COLOUR, app_stettings.highlight);
      settings.setValue(SETTINGS_AUTO_SCROLL, app_stettings.auto_scroll);
-     settings.setValue(SETTINGS_SAVE_IN_FILE, app_stettings.save_in_file);
      settings.setValue(SETTINGS_ONLY_ACTUAL_DATE, app_stettings.only_actual);
-     settings.setValue(SETTINGS_PATH_TO_SAVE_FILE, app_stettings.string_path);
-     settings.setValue(SETTINGS_FILE_NAME, app_stettings.filename);
-     settings.setValue(SETTINGS_FIRST_DAY, app_stettings.first_day.long_day_name);
-      settings.setValue(SETTINGS_FIRST_DAY_NO, app_stettings.first_day.no);
-     settings.setValue(SETTINGS_SECOND_DAY, app_stettings.second_day.long_day_name);
-     settings.setValue(SETTINGS_SECOND_DAY_NO, app_stettings.second_day.no);
-     settings.setValue(SETTINGS_GENERATE_LOG, app_stettings.generate_log_in_background);
+
      settings.endGroup();
  }
 
@@ -199,15 +169,9 @@ void AppSetting::on_settings_changed(bool x){
     app_stettings.country = settings.value(SETTINGS_COUNTRY, 0).toInt();
     app_stettings.highlight = settings.value(SETTINGS_COLOUR, false).toBool();
     app_stettings.auto_scroll = settings.value(SETTINGS_AUTO_SCROLL, true).toBool();
-    app_stettings.save_in_file = settings.value(SETTINGS_SAVE_IN_FILE, true).toBool();
     app_stettings.only_actual = settings.value(SETTINGS_ONLY_ACTUAL_DATE, true).toBool();
-        app_stettings.filename = settings.value(SETTINGS_FILE_NAME, "koncerty.txt").toString();
-    app_stettings.string_path = settings.value(SETTINGS_PATH_TO_SAVE_FILE, (QDir::homePath()+"/Desktop/"+app_stettings.filename)).toString();
-    app_stettings.first_day.long_day_name = settings.value(SETTINGS_FIRST_DAY, "wtorek").toString();
-    app_stettings.first_day.no = settings.value(SETTINGS_FIRST_DAY_NO , 2).toInt();
-    app_stettings.second_day.long_day_name = settings.value(SETTINGS_SECOND_DAY, "piatek").toString();
-    app_stettings.second_day.no = settings.value(SETTINGS_SECOND_DAY_NO , 5).toInt();
-    app_stettings.generate_log_in_background = settings.value(SETTINGS_GENERATE_LOG , false).toBool();
+;
+
     settings.endGroup();
 
 //    qDebug() <<  "app_stettings.country" <<  app_stettings.country;
