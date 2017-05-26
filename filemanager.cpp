@@ -1,18 +1,93 @@
 #include "filemanager.h"
 
-filemanager::filemanager(QObject *parent) : QObject(parent)
+filemanager::filemanager(void )
 {
 
-
-
-}
-void filemanager::openFile(const char *nazwapliku)
-{
-    fout.open(nazwapliku,  ios_base::app |  ios_base::ate);
 }
 
 
-bool filemanager::fileExists(const char *str)
+void filemanager::save_artist_list(QList<artist_names_t> &lista_wykonawcow){
+    if(!lista_wykonawcow.isEmpty()){
+        int index = 0;
+        QList<artist_names_t>::iterator i;
+        qDebug() << "!lista_wykonawcow.isEmpty()";
+        if(fileExists(ARTIST_LOG_NAME)){
+            qDebug() << "PLIK ISTNIEJE";
+            QFile::remove(ARTIST_LOG_NAME);
+        }
+            QJsonArray file_struct_array;
+            QFile log(ARTIST_LOG_NAME);
+            log.open(QIODevice::ReadWrite |  QIODevice::Text);
+            QTextStream outStream(&log);
+            for (i = lista_wykonawcow.begin(); i != lista_wykonawcow.end(); ++i){
+                QJsonObject object;
+                QJsonArray tablica = {i->lastfm_name, i->fb_name, i->songkick_name};
+
+                object["index"] = ++index;
+                object["artist name"] = i->full_name;
+                object["artist_tags"] = tablica;
+                file_struct_array << object;
+
+                qDebug() << i->full_name;
+            }
+            QJsonDocument document(file_struct_array);
+            qDebug() << document.toJson(QJsonDocument::Indented);
+             outStream << document.toJson(QJsonDocument::Indented);
+             log.close();
+        }
+       qDebug() << "Brak wykonawcow do zapisania";
+
+     }
+
+
+void filemanager::read_artist_list(QList<artist_names_t> &lista_wykonawcow){
+
+    if(fileExists(ARTIST_LOG_NAME)){
+
+        QFile log(ARTIST_LOG_NAME);
+        if(!log.open(QIODevice::ReadOnly |  QIODevice::Text)){
+            qDebug() << log.errorString();
+        }else{
+            lista_wykonawcow.clear();
+            artist_names_t temp_artist;
+
+            QJsonDocument document = QJsonDocument::fromJson(log.readAll());
+
+          QJsonArray file_struct_array = document.array();
+
+            //QJsonArray file_struct_array(document);
+            QJsonObject event_obj;
+
+            foreach(const QJsonValue &value, file_struct_array ){
+                event_obj = value.toObject();
+
+                temp_artist.token_no = event_obj["index"].toInt();
+                temp_artist.full_name = event_obj["artist name"].toString();
+                QJsonArray artist_tags = event_obj["artist_tags"].toArray();
+                temp_artist.songkick_name = artist_tags[2].toString();
+                temp_artist.fb_name = artist_tags[1].toString();
+                temp_artist.lastfm_name = artist_tags[1].toString();
+
+
+
+                lista_wykonawcow.append(temp_artist);
+            }
+        }
+    }
+
+     QList<artist_names_t>::iterator i;
+       for (i = lista_wykonawcow.begin(); i != lista_wykonawcow.end(); ++i){
+           qDebug() << "i->token_no;" << i->token_no;
+           qDebug() << "i->full_name;" << i->full_name;
+           qDebug() << "i->lastfm_name" << i->lastfm_name;
+           qDebug() << "i->fb_name" << i->fb_name;
+           qDebug() << "i->songkick_name" << i->songkick_name;
+       }
+}
+
+
+
+bool filemanager::fileExists(QString str)
 {
     QFile Fout(str);
     if(Fout.exists()){
@@ -25,21 +100,8 @@ bool filemanager::fileExists(const char *str)
    Fout.close();
 
 }
-void filemanager::readArtistFromLogFile(const char *nazwapliku, QList <QString> *artist_list){
-        char ch;
-        std::string wiersz;
-        if(fileExists(nazwapliku)){
-            fin.open(nazwapliku);
 
-            while(std::getline(  fin, wiersz )){
-             artist_list->append(convertToQString(&wiersz));
-             //std::cout << wiersz << std::endl;
-            }
-    fin.close();
-    }else {
-        qDebug() <<QString::fromUtf8(nazwapliku) << "plik nie istnieje, nie dodano zadnego wykonawcy";
-    }
-}
+
 QString filemanager::convertToQString(std::string *str){
     int i;
     QString temp_str;
@@ -56,90 +118,7 @@ QString filemanager::convertToQString(std::string *str){
     }
     return temp_str;
 }
-int filemanager::getLastRecordNumber(string record){
 
-
-     std::locale loc;
-      if (isdigit(record[0],loc))
-      {
-        int num;
-        std::stringstream(record) >> num;
-        return num;
-      }
-      else return -1;
-
-}
-
-void filemanager::addArtistToLogFile(const char *nazwapliku, QString *artist_name){
-    int last_artist_num = 0;
-    if(fileExists(nazwapliku)){
-         fin.open(nazwapliku);
-        std::string wiersz;
-          while( std::getline( fin, wiersz ) ){
-               ;
-          }
-         last_artist_num = getLastRecordNumber(wiersz);
-         qDebug() << QString::number(last_artist_num);
-         fin.close();
-         fout.open(nazwapliku, ios_base::app |  ios_base::ate);
-         if(  fout.good() )
-            {
-                fout.seekp(0,std::ios_base::end);
-                fout << endl;
-                fout << ++last_artist_num <<". "<< artist_name->toStdString();
-                fout.close();
-            }
-    }
-    else {
-        fout.open(nazwapliku, ios_base::app |  ios_base::ate);
-        if(  fout.good() )
-           {
-               fout.seekp(0,std::ios_base::end);
-               fout << ++last_artist_num <<". "<< artist_name->toStdString();
-               fout.close();
-           }
-
-    }
-}
-
-void filemanager::removeArtistFromLogFile(const char *nazwapliku, int num, QList<QString> *_list){
-
-    QList<QString>::iterator i;
-    QString temp_str;
-    qDebug() << num;
-
-    if(num > 0 && num <= _list->size()){
-
-        fout.open(nazwapliku,  std::ofstream::out | std::ofstream::trunc);
-        fout.seekp(0,std::ios_base::beg);
-
-        int j;
-        for (j = 0, i = _list->begin(); j < _list->size(),  i != _list->end(); j++, ++i){
-            temp_str = *i;
-            if( j+1 == num){
-                qDebug() << "Usunieto "<<  temp_str;
-                //msg_label->setText("Usunieto: "+ temp_str);
-                continue;
-            }else {
-                fout <<j+1<<". "<< temp_str.toStdString() ;
-                if(j != _list->size() -2){
-                    fout << endl;
-                }
-            }
-        }
-        fout.close();
-    } else {
-
-    }
-
-
-}
-/*
-ostream & operator<<(ostream &os, filemanager &in){
-
-     os << in.str;
-     return os;
-}*/
 
 
 

@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     lastfm_parser.cpp \
     appsetting.cpp \
     graphics.cpp \
-    filelog.cpp
+    filelog.cpp \
+    mylineedit.cpp
 
 HEADERS  += mainwindow.h \
     nameparser.h \
@@ -35,7 +36,9 @@ HEADERS  += mainwindow.h \
     lastfm_parser.h \
     appsetting.h \
     graphics.h \
-    filelog.h
+    filelog.h \
+    defines.h \
+    mylineedit.h
 
 FORMS    += mainwindow.ui \
     appsetting.ui

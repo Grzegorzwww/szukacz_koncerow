@@ -8,17 +8,28 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     fileLog = new Filelog(this);
-    appEngine = new AppEngine(ui, this);
     graphics  = new Graphics(ui, this);
+    appEngine = new AppEngine(ui, this);
     appSetting = new AppSetting(this);
 
-    fileLog->getDefaultSettings(appSetting->returnDefaultSettings());
+
     graphics->getDefaultSettings(appSetting->returnDefaultSettings());
+    graphics->getArtisListAdress(appEngine->returnAtristListAdress());
 
-    fileLog->openLogFile();
 
 
-    connect(this, SIGNAL(enter_pushed_signal()), graphics, SLOT(on_enter_pushed()));
+    connect(graphics, SIGNAL(added_artist_clicked(artist_names_t)), appEngine, SLOT(on_add_artist(artist_names_t)));
+    connect(appEngine, SIGNAL(actualice_artist_list()), graphics, SLOT(on_reflash_artist_list()));
+
+    connect(graphics, SIGNAL(removed_artist_clicked(int)), appEngine, SLOT(on_remove_artist(int)));
+
+
+
+
+
+
+
+
     connect(ui->pushButton_8, SIGNAL(clicked(bool)), appSetting, SLOT(show()));
     connect(ui->pushButton_8, SIGNAL(clicked(bool)), appSetting, SLOT(on_load_settings(bool)));
 
@@ -42,9 +53,16 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(fileLog, SIGNAL(start_download_events(bool)), appEngine, SLOT(on_start_lastfm_clicked(bool)));
 
 
-    if(fileLog->generateLogInBackground()){
-        exit(1);
-    }
+
+
+
+
+
+
+
+//    if(fileLog->generateLogInBackground()){
+//        exit(1);
+//    }
 
 
 
@@ -55,24 +73,40 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::keyPressEvent(QKeyEvent * event)
-{
-    if( event->key() == Qt::Key_Enter){
-         qDebug() << "ENTER";
-         emit enter_pushed_signal();
-    }
 
-}
 
 void MainWindow::changeEvent(QEvent *event)
 {
 QMainWindow::changeEvent(event);
     if(event->type() == QEvent::WindowStateChange)
-//        if(isMinimized())
-//            this->hide();
+
         ;
 }
 
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+  switch (event->key())
+  {
+    case Qt::Key_Return:
+    case Qt::Key_Enter:
+      qDebug() << "Enter";
+      break;
+    case Qt::Key_Escape:
+      qDebug() << "Escape";
+      break;
+    case Qt::Key_Insert:
+      qDebug() << "Insert";
+      break;
+    case Qt::Key_Delete:
+      qDebug() << "Delete";
+      graphics->delete_key_press();
+      break;
+      default:
+      qDebug() << "other" << event->key();
+      break;
+  }
+}
 
 
 

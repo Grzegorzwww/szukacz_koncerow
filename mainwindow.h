@@ -9,6 +9,7 @@
 #include <appsetting.h>
 #include <graphics.h>
 #include <filelog.h>
+#include <artistmanage.h>
 
 
 using namespace std;
@@ -24,7 +25,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void keyPressEvent(QKeyEvent * event);
     void changeEvent(QEvent *event);
 
 
@@ -42,9 +42,13 @@ private:
     Ui::MainWindow *ui;
 
 
+protected:
+        void keyPressEvent(QKeyEvent *event);
+
+
 signals:
 
-    void enter_pushed_signal(void);
+
 
 };
 

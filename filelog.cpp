@@ -217,7 +217,6 @@ bool Filelog::generateLogInBackground(){
               }else {
                   return true;
               }
-
           }
       }
       else {

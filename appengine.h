@@ -21,7 +21,7 @@
 
 
 
-class AppEngine :public filemanager
+class AppEngine :public QObject/*:public filemanager*/
 {
     Q_OBJECT
 public:
@@ -37,6 +37,16 @@ public:
 
     Ui::MainWindow *ui;
     ArtistToken *fb_artist_token;
+
+
+    QList <artist_names_t> lista_wykonawcow;
+
+    filemanager *file_manager;
+
+
+     QList <artist_names_t>*  returnAtristListAdress();
+
+
 
 
 
@@ -74,6 +84,15 @@ public slots:
 
     void on_stop_searching_clicked(bool x);
     void on_reload_artist_list();
+
+
+    void on_add_artist(artist_names_t token);
+    void on_remove_artist(int x);
+
+
+
+signals:
+    void actualice_artist_list(void);
 
 
 

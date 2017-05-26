@@ -13,21 +13,6 @@ AppSetting::AppSetting(QWidget *parent) :
     app_stettings.auto_scroll = true;
     app_stettings.save_in_file = true;
     app_stettings.only_actual = true;
-    app_stettings.string_path = QDir::homePath()+"/Desktop";
-    app_stettings.filename =  "koncerty.txt";
-    app_stettings.first_day.no = 2;
-    app_stettings.first_day.long_day_name = "wtorek";
-    app_stettings.second_day.no = 5;
-    app_stettings.second_day.long_day_name = "piatek";
-     app_stettings.generate_log_in_background = false;
-
-
-
-//    for(int i = 1; i < 8; i++){
-//        ui->comboBox->addItem(QDate::longDayName(i));
-//         ui->comboBox_2->addItem(QDate::longDayName(i));
-//    }
-
 
 
     ui->checkBox->setChecked(true);
@@ -132,8 +117,6 @@ void AppSetting::on_settings_changed(bool x){
         ui->radioButton_6->setChecked(true);
     }
 
-
-
     if(app_stettings.only_actual == true){
         ui->radioButton_3->setChecked(true);
         ui->radioButton_4->setChecked(false);
@@ -170,7 +153,6 @@ void AppSetting::on_settings_changed(bool x){
     app_stettings.highlight = settings.value(SETTINGS_COLOUR, false).toBool();
     app_stettings.auto_scroll = settings.value(SETTINGS_AUTO_SCROLL, true).toBool();
     app_stettings.only_actual = settings.value(SETTINGS_ONLY_ACTUAL_DATE, true).toBool();
-;
 
     settings.endGroup();
 

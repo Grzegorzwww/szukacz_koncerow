@@ -13,38 +13,41 @@
 #include <stdlib.h>
 #include <locale>
 #include <sstream>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include "defines.h"
+
+
+
+//QJsonArray array = { 1, 2.2, QString() };
 
 using namespace std;
-class filemanager : public QObject
+class filemanager
 {
-    Q_OBJECT
+
 public:
 
-    QList <QString> artist_list;
-    QList <QString> fb_artist_list;
+    explicit filemanager(void );
 
-    explicit filemanager(QObject *parent = 0);
-    void readArtistFromLogFile(const char *nazwapliku, QList<QString> *artist_list);
-    void addArtistToLogFile(const char *nazwapliku, QString *artist_name);
-    void removeArtistFromLogFile(const char *nazwapliku, int num, QList<QString> *_list);
+
+    void read_artist_list( QList <artist_names_t> &lista_wykonawcow);
+    void save_artist_list( QList <artist_names_t> &slista_wykonawcow);
+
 
 
 private:
 
-    ofstream fout;
-    ifstream fin;
-    streampos pos;
-    string nazwapliku;
-
-    void openFile(const char *nazwapliku);
-    bool fileExists(const char *str);
+    bool fileExists(QString str);
     QString convertToQString(std::string *str);
-    int getLastRecordNumber(string record);
+
 
 
 signals:
 
 public slots:
+
+
 };
 
 #endif // FILEMANAGER_H

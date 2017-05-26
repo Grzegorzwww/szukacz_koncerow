@@ -85,7 +85,9 @@ public slots:
     void on_load_settings(bool x);
 
 private slots:
+
 signals:
+
     void send_settings(stettings_t);
 
 };
