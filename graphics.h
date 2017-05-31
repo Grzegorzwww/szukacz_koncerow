@@ -9,6 +9,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QMessageBox>
+#include <QInputDialog>
 #include <mylineedit.h>
 #include <QAbstractListModel>
 #include <QStandardItem>
@@ -17,6 +18,7 @@
 #include <event_token.h>
 #include <appsetting.h>
 #include <filemanager.h>
+
 
 
 class Graphics :  public QWidget
@@ -76,37 +78,41 @@ public slots:
       void on_result_data(ArtistToken token);
       void on_clear_result_list(bool x);
       void on_clear_artist_table(bool x);
-
       void on_get_settings(stettings_t set);
-
       void on_dodaj_artist_to_list_clicked(bool x);
-
-      void on_dodaj_facebook_clicked(bool x);
-      void on_remove_lastfm_pushed(bool x);
-      void on_remove_facebook_pushed(bool x);
-//      void on_main_tab_changed(int n);
-      void on_remove_from_last_fm();
-      void on_remove_from_facebook();
-      void on_rename_from_last_fm();
-      void on_rename_from_facebook();
       void on_enter_pushed();
+
       void on_tableView_3_customContextMenuRequested(const QPoint &pos);
       void on_tableView_2_customContextMenuRequested(const QPoint &pos);
 
 
 
-
-//      void on_actualice_artist_list(QList <artist_names_t> lista);
       void on_reflash_artist_list(void);
-      void lineEdit_focused(bool x) { if(x){ui->my_lineEdit->clear();} else{if(ui->my_lineEdit->text().isEmpty()) ui->my_lineEdit->setText("-");}}
-      void lineEdit_2_focused(bool x) {if(x){ui->my_lineEdit_2->clear();} else{if(ui->my_lineEdit_2->text().isEmpty()) ui->my_lineEdit_2->setText("-");}}
-      void lineEdit_3_focused(bool x) {if(x){ui->my_lineEdit_3->clear();} else{if(ui->my_lineEdit_3->text().isEmpty()) ui->my_lineEdit_3->setText("-");}}
-      void lineEdit_4_focused(bool x) { if(x){ui->my_lineEdit_4->clear();} else{if(ui->my_lineEdit_4->text().isEmpty()) ui->my_lineEdit_4->setText("-");}}
+      void lineEdit_focused(bool x)
+      {
+          if(x && ui->my_lineEdit->text().length() <= 1){
+              ui->my_lineEdit->clear();
+          }
+          else
+          {
+              if(ui->my_lineEdit->text().isEmpty()) ui->my_lineEdit->setText("-");
+          }
+      }
+      void lineEdit_2_focused(bool x) {if(x && ui->my_lineEdit_2->text().length() <= 1){ui->my_lineEdit_2->clear();} else{if(ui->my_lineEdit_2->text().isEmpty()) ui->my_lineEdit_2->setText("-");}}
+      void lineEdit_3_focused(bool x) {if(x && ui->my_lineEdit_3->text().length() <= 1){ui->my_lineEdit_3->clear();} else{if(ui->my_lineEdit_3->text().isEmpty()) ui->my_lineEdit_3->setText("-");}}
+      void lineEdit_4_focused(bool x) { if(x && ui->my_lineEdit_4->text().length() <= 1){ui->my_lineEdit_4->clear();} else{if(ui->my_lineEdit_4->text().isEmpty()) ui->my_lineEdit_4->setText("-");}}
       void lineEdit_5_focused(bool x) { if(x){ui->my_lineEdit_5->clear();} else{if(ui->my_lineEdit_5->text().isEmpty()) ui->my_lineEdit_5->setText("Wpisz...");}}
 
 
       void on_remove_artist_from_table_clicked();
       void on_delete_press();
+
+       void on_sarch_in_artist_list(QString key_word);
+
+       void on_change_artist_full_name();
+       void on_change_artist_lastfm_name();
+       void on_change_artist_facebook_name();
+       void on_change_artist_songkick_name();
 
 
 

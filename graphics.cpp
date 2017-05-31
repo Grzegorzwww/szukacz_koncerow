@@ -58,17 +58,22 @@ Graphics::Graphics(Ui::MainWindow *_ui, QWidget *parent): ui(_ui), my_parent(par
 
 
      connect(remove_from_artist_list, SIGNAL(triggered()), this, SLOT(on_remove_artist_from_table_clicked()));
+     connect(change_artist_fullname , SIGNAL(triggered()), this, SLOT(on_change_artist_full_name()));
+     connect(change_artist_lastfmname, SIGNAL(triggered()), this, SLOT(on_change_artist_lastfm_name()));
+     connect(change_artist_facebook, SIGNAL(triggered()), this, SLOT(on_change_artist_facebook_name()));
+     connect(change_artist_songkick, SIGNAL(triggered()), this, SLOT(on_change_artist_songkick_name()));
+
+
+
+
      connect(this, SIGNAL(delete_press()), this, SLOT( on_delete_press()));
 
+     connect(ui->my_lineEdit_5, SIGNAL(textChanged(QString)), this, SLOT(on_sarch_in_artist_list(QString)));
 
-    //connect(ui->pushButton_6, SIGNAL(clicked(bool)), this, SLOT(on_dodaj_facebook_clicked(bool)));
+
     connect(ui->tabWidget, SIGNAL( currentChanged(int )), this, SLOT(on_main_tab_changed(int)));
-   //connect(remove_from_lastfm_list, SIGNAL(triggered()), this, SLOT(on_remove_from_last_fm()));
-   // connect(remove_from_facebook_list, SIGNAL(triggered()), this, SLOT(on_remove_from_facebook()));
-   // connect(rename_from_lastfm_list, SIGNAL(triggered()), this, SLOT(on_rename_from_last_fm()));
-   // connect(rename_from_facebook_list, SIGNAL(triggered()), this, SLOT(on_rename_from_facebook()));
     connect(ui->tableView_3, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(on_tableView_3_customContextMenuRequested(QPoint)));
-    //connect(ui->tableView_2, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(on_tableView_2_customContextMenuRequested(QPoint)));
+
 
 }
 Graphics::~Graphics(){
@@ -260,142 +265,12 @@ void Graphics::on_dodaj_artist_to_list_clicked(bool x){
         ui->my_lineEdit->setFocus();
 }
 
-void Graphics::on_dodaj_facebook_clicked(bool x){
-
-    //qDebug() << "ZAPISZ PLIK";
-
-   // file_manager->save_artist_list();
 
 
-//    QString artist_name = ui->lineEdit_5->text();
-//    artist_name = artist_name.trimmed();
-//    if(!artist_name.isEmpty()){
-//        ui->lineEdit_5->clear();
-//        addArtistToLogFile("fb_artist_log", &artist_name);
-//        ui->label_10->setText("Dodano: "+artist_name);
-//        fb_artist_list.clear();
-//        readArtistFromLogFile("fb_artist_log", &fb_artist_list);
-//        refresh_facebook_artist_tab();
-//        ui->progressBar->setMaximum(lastfm_artist_list.size() - 1);
-//        // actualizeProgressBar(artist_list.size() , fb_artist_list.size());
-//    }
-//    else
-//        ui->label_4->setText("BLAD: Nie wpisano wykonawcy");
-}
-void Graphics::on_remove_lastfm_pushed(bool x){
-
-//    lastfm_artist_list.clear();
-//    readArtistFromLogFile("artist_log", &lastfm_artist_list);
-//    removeArtistFromLogFile("artist_log", 1, &lastfm_artist_list );
-//    refresh_artist_list_tab();
-}
-
-void Graphics::on_remove_facebook_pushed(bool x){
 
 
-//    fb_artist_list.clear();
-//    readArtistFromLogFile("fb_artist_log", &fb_artist_list);
-//    removeArtistFromLogFile("fb_artist_log", 1, &fb_artist_list );
-//    refresh_facebook_artist_tab();
-}
-
-//void Graphics::on_main_tab_changed(int n){
-//    qDebug()<<"on_main_tab_changed " << QString::number(n);
-//    if(n == 0){
-//        refresh_artist_list_tab();
-//    }
-//    if(n == 1){
-//        refresh_facebook_artist_tab();
-//    }
-//}
-
-void Graphics::refresh_artist_list_tab(){
-    while( ui->tableView_3->model()->rowCount() > 0 ){
-        ui->tableView_3->model()->removeRow(0);
-    }
-//    lastfm_artist_list.clear();
-//    readArtistFromLogFile("artist_log", &lastfm_artist_list);
-//    readArtistFromLogFile("fb_artist_log", &fb_artist_list);
-
-    QList<QStandardItem *> newRow;
-    QList<QString>::iterator i;
-//    for (i = lastfm_artist_list.begin(); i != lastfm_artist_list.end(); ++i){
-//        newRow.clear();
-//        newRow.append(new QStandardItem(*i));
-//        newRow.append(new QStandardItem(" - "));
-        _artist_table_model->appendRow(newRow);
-//    }
-    emit reload_list();
-}
-
-void Graphics::refresh_facebook_artist_tab(){
-
-//    while( ui->tableView_2->model()->rowCount() > 0 ){
-//        ui->tableView_2->model()->removeRow(0);
-//    }
-//    fb_artist_list.clear();
-//    readArtistFromLogFile("fb_artist_log", &fb_artist_list);
-    QList<QStandardItem *> newRow;
-    QList<QString>::iterator i;
-//    for (i = fb_artist_list.begin(); i != fb_artist_list.end(); ++i){
-//        newRow.clear();
-//        newRow.append(new QStandardItem(*i));
-//        newRow.append(new QStandardItem(" - "));
-////        _facebook_table_model->appendRow(newRow);
-//    }
-    emit reload_list();
-}
-
-void Graphics::on_remove_from_last_fm(){
-    qDebug() << "on_remove_from_last_fm";
-    QModelIndexList selection = ui->tableView_3->selectionModel()->selectedRows();
-
-    for(int i=0; i< selection.count(); i++)
-    {
-        QModelIndex index = selection.at(i);
-
-        int num = index.row();
-//        lastfm_artist_list.clear();
-//        readArtistFromLogFile("artist_log", &lastfm_artist_list);
-//        if (QMessageBox::question(my_parent, "Czy usunąć?", "Napewno chcesz usunąc wykonawcę:  "+lastfm_artist_list.at(num)+" ?") == QMessageBox::Yes){
-//            removeArtistFromLogFile("artist_log", num+1, &lastfm_artist_list );
-//        }
-        refresh_artist_list_tab();
-    }
-}
-
-void Graphics::on_remove_from_facebook(){
-    qDebug() << "on_remove_from_facebook";
-    //QModelIndexList selection = ui->tableView_2->selectionModel()->selectedRows();
-//    for(int i=0; i< selection.count(); i++)
-//    {
-//        QModelIndex index = selection.at(i);
-//        int num = index.row();
-//        fb_artist_list.clear();
-//        readArtistFromLogFile("fb_artist_log", &fb_artist_list);
-//        if (QMessageBox::question(my_parent, "Czy usunąć?", "Napewno chcesz usunąc wykonawcę:  "+fb_artist_list.at(num)+" ?") == QMessageBox::Yes){
-//            removeArtistFromLogFile("fb_artist_log", num+1, &fb_artist_list );
-//        }
-//        refresh_facebook_artist_tab();
-//    }
-}
-void Graphics::on_rename_from_last_fm(){
-
-
-}
-void Graphics::on_rename_from_facebook(){
-
-}
 
 void Graphics::on_enter_pushed(){
-//    qDebug() <<"on_enter_pushed";
-//    if(ui->tabWidget->currentIndex() == 0){
-//        on_dodaj_artist_to_list_clicked(true);
-//    }else if(ui->tabWidget->currentIndex() == 1){
-//        on_dodaj_facebook_clicked(true);
-//    }else if(ui->tabWidget->currentIndex() == 2){
-//        qDebug() << "Not implemented";
-//    }
 }
 
 void Graphics::on_tableView_3_customContextMenuRequested(const QPoint &pos)
@@ -496,6 +371,102 @@ void Graphics::on_remove_artist_from_table_clicked(){
 void Graphics::on_delete_press(){
     on_remove_artist_from_table_clicked();
 }
+
+void Graphics::on_sarch_in_artist_list(QString key_word){
+    // qDebug() << "keyworld " <<key_word;
+    if(key_word != "Wpisz..."){
+        on_clear_artist_table(true);
+        QList<QStandardItem *> newRow;
+        if(!lista_wykonawcow->isEmpty()){
+            QList<artist_names_t>::iterator i;
+            for (i = lista_wykonawcow->begin(); i != lista_wykonawcow->end(); ++i){
+                newRow.clear();
+                if(i->full_name.contains(key_word,  Qt::CaseInsensitive)){
+                    newRow.append(new QStandardItem(i->full_name));
+                    newRow.append(new QStandardItem(i->lastfm_name));
+                    newRow.append(new QStandardItem(i->fb_name));
+                    newRow.append(new QStandardItem(i->songkick_name));
+                    _artist_table_model->appendRow(newRow);
+                }else
+                    continue;
+            }
+        }
+    }
+}
+
+
+void Graphics::on_change_artist_full_name(){
+//    qDebug() << "on_change_artist_full_name";
+    QModelIndexList selection = ui->tableView_3->selectionModel()->selectedRows();
+    if(selection.count() > 0){
+        QModelIndex index = selection.at(0);
+        bool ok;
+        QString text = QInputDialog::getText(this, tr("Wprowadz nową nazwę "),
+                                             tr("Nazwa:"), QLineEdit::Normal,
+                                             lista_wykonawcow->at(index.row()).full_name, &ok);
+        if (ok && !text.isEmpty()){
+            artist_names_t temp = lista_wykonawcow->at(index.row());
+            temp.full_name = text;
+            lista_wykonawcow->replace(index.row(), temp);
+            qDebug() << "new text " << text;
+        }
+    }
+    on_reflash_artist_list();
+}
+
+void Graphics::on_change_artist_lastfm_name(){
+    QModelIndexList selection = ui->tableView_3->selectionModel()->selectedRows();
+    if(selection.count() > 0){
+        QModelIndex index = selection.at(0);
+        bool ok;
+        QString text = QInputDialog::getText(this, tr("Wprowadz nową nazwę "),
+                                             tr("Nazwa:"), QLineEdit::Normal,
+                                             lista_wykonawcow->at(index.row()).lastfm_name, &ok);
+        if (ok && !text.isEmpty()){
+            artist_names_t temp = lista_wykonawcow->at(index.row());
+            temp.lastfm_name = text;
+            lista_wykonawcow->replace(index.row(), temp);
+            qDebug() << "new text " << text;
+        }
+    }
+    on_reflash_artist_list();
+}
+void Graphics::on_change_artist_facebook_name(){
+    QModelIndexList selection = ui->tableView_3->selectionModel()->selectedRows();
+    if(selection.count() > 0){
+        QModelIndex index = selection.at(0);
+        bool ok;
+        QString text = QInputDialog::getText(this, tr("Wprowadz nową nazwę "),
+                                             tr("Nazwa:"), QLineEdit::Normal,
+                                             lista_wykonawcow->at(index.row()).fb_name, &ok);
+        if (ok && !text.isEmpty()){
+            artist_names_t temp = lista_wykonawcow->at(index.row());
+            temp.fb_name = text;
+            lista_wykonawcow->replace(index.row(), temp);
+            qDebug() << "new text " << text;
+        }
+    }
+    on_reflash_artist_list();
+}
+void Graphics::on_change_artist_songkick_name(){
+    QModelIndexList selection = ui->tableView_3->selectionModel()->selectedRows();
+    if(selection.count() > 0){
+        QModelIndex index = selection.at(0);
+        bool ok;
+        QString text = QInputDialog::getText(this, tr("Wprowadz nową nazwę "),
+                                             tr("Nazwa:"), QLineEdit::Normal,
+                                             lista_wykonawcow->at(index.row()).songkick_name, &ok);
+        if (ok && !text.isEmpty()){
+            artist_names_t temp = lista_wykonawcow->at(index.row());
+            temp.songkick_name = text;
+            lista_wykonawcow->replace(index.row(), temp);
+            qDebug() << "new text " << text;
+        }
+    }
+    on_reflash_artist_list();
+}
+
+
 
 
 
