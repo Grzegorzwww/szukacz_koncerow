@@ -11,12 +11,13 @@ NameParser::~NameParser() {
 }
 
 QString NameParser::generateLastFmLink(QString name){
-    QString temp = "http://www.last.fm/music/";
+    QString temp = "https://www.last.fm/music/";
     name.replace(" ", "+");
     name = name+"/+events";
     temp = temp+name;
    // temp = temp.toLower();
-    // qDebug() << temp;
+     qDebug() <<"lastfm link:"<< temp;
+   // temp = "http://www.zmt.tarnow.pl/wordpress/";
     return temp;
 }
 

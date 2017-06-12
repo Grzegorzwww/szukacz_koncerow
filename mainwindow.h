@@ -10,6 +10,7 @@
 #include <graphics.h>
 #include <filelog.h>
 #include <artistmanage.h>
+#include <findartistdialog.h>
 
 
 using namespace std;
@@ -32,6 +33,7 @@ public:
     AppSetting *appSetting;
     Graphics *graphics;
     Filelog *fileLog;
+    FindArtistDialog *findArtistDialog;
 
 
 public slots:

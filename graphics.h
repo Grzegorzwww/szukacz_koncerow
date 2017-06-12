@@ -20,7 +20,6 @@
 #include <filemanager.h>
 
 
-
 class Graphics :  public QWidget
 {
     Q_OBJECT
@@ -45,6 +44,7 @@ private:
 
       QMenu  *artist_list_menu;
       QAction *remove_from_artist_list;
+      QAction *search_in_selected_artist;
       QAction *change_artist_fullname;
       QAction *change_artist_lastfmname;
       QAction *change_artist_facebook;
@@ -52,6 +52,8 @@ private:
       QAction *find_similas_artist;
       QAction *show_most_played_with_artists;
 
+       int progrescounter;
+       int max_tags_to_search;
 
 
       QList <artist_names_t> *lista_wykonawcow;
@@ -85,26 +87,19 @@ public slots:
       void on_tableView_3_customContextMenuRequested(const QPoint &pos);
       void on_tableView_2_customContextMenuRequested(const QPoint &pos);
 
-
+      void on_sarch_for_artist(QString key_word);
 
       void on_reflash_artist_list(void);
-      void lineEdit_focused(bool x)
-      {
-          if(x && ui->my_lineEdit->text().length() <= 1){
-              ui->my_lineEdit->clear();
-          }
-          else
-          {
-              if(ui->my_lineEdit->text().isEmpty()) ui->my_lineEdit->setText("-");
-          }
-      }
-      void lineEdit_2_focused(bool x) {if(x && ui->my_lineEdit_2->text().length() <= 1){ui->my_lineEdit_2->clear();} else{if(ui->my_lineEdit_2->text().isEmpty()) ui->my_lineEdit_2->setText("-");}}
-      void lineEdit_3_focused(bool x) {if(x && ui->my_lineEdit_3->text().length() <= 1){ui->my_lineEdit_3->clear();} else{if(ui->my_lineEdit_3->text().isEmpty()) ui->my_lineEdit_3->setText("-");}}
-      void lineEdit_4_focused(bool x) { if(x && ui->my_lineEdit_4->text().length() <= 1){ui->my_lineEdit_4->clear();} else{if(ui->my_lineEdit_4->text().isEmpty()) ui->my_lineEdit_4->setText("-");}}
-      void lineEdit_5_focused(bool x) { if(x){ui->my_lineEdit_5->clear();} else{if(ui->my_lineEdit_5->text().isEmpty()) ui->my_lineEdit_5->setText("Wpisz...");}}
+
+      void lineEdit_focused(bool x);
+      void lineEdit_2_focused(bool x);
+      void lineEdit_3_focused(bool x);
+      void lineEdit_4_focused(bool x);
+      void lineEdit_5_focused(bool x);
 
 
       void on_remove_artist_from_table_clicked();
+      void on_search_only_selected();
       void on_delete_press();
 
        void on_sarch_in_artist_list(QString key_word);
@@ -115,12 +110,26 @@ public slots:
        void on_change_artist_songkick_name();
 
 
+      void  on_artist_was_find(QString name);
+      void  on_artist_was_not_find(QString name);
+
+      void   on_facebook_artist_was_find(QString name);
+      void   on_facebook_artist_was_not_find(QString name);
+
+
 
 signals:
       void reload_list();
       void added_artist_clicked(artist_names_t token);
       void removed_artist_clicked(int no);
       void delete_press();
+
+      void concert_find_counter(void);
+
+      void search_for_last_fm_artist(QString);
+      void search_for_facebook_artist(QString);
+
+      void search_in_selected_artist_signal(QList<int>);
 
 
 

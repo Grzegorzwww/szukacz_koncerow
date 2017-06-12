@@ -3,8 +3,9 @@
 
 #include <iostream>
 #include <QString>
+#include <QPixmap>
 
-#endif // DEFINES_H
+
 
 typedef struct artist_names_s {
     int token_no;
@@ -15,4 +16,15 @@ typedef struct artist_names_s {
 } artist_names_t;
 
 
+typedef struct find_artist_s {
+    QString name;
+    int listeners;
+    QString category;
+    QString url;
+    QString pix_url;
+} find_artist_t;
+
+
 static const QString ARTIST_LOG_NAME = "artist_log_file";
+
+#endif // DEFINES_H

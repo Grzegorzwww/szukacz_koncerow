@@ -7,12 +7,15 @@ Graphics::Graphics(Ui::MainWindow *_ui, QWidget *parent): ui(_ui), my_parent(par
     actual_event_was_find = false;
 
 
+   // progrescounter = 0;
+    max_tags_to_search = 0;
 
     _result_table_model = new QStandardItemModel(0,6,this);
     _artist_table_model = new QStandardItemModel(0,2,this);
     actual_date = new QDate(QDate::currentDate());
 
     remove_from_artist_list = new QAction("Usuń", parent);
+    search_in_selected_artist = new QAction("Przeszukaj tylko wybrane", parent);
     change_artist_fullname = new QAction("Zmień pełną nazwę", parent);
     change_artist_lastfmname = new QAction("Zmien nazwę: last.fm", parent);
     change_artist_facebook = new QAction("Zmień nazwę: facebok.com", parent);
@@ -20,16 +23,29 @@ Graphics::Graphics(Ui::MainWindow *_ui, QWidget *parent): ui(_ui), my_parent(par
     find_similas_artist = new QAction("Pokaz podobnych wykonawców", parent);
     show_most_played_with_artists = new QAction("Często występował z:", parent);
 
+    remove_from_artist_list->setIcon(QIcon(":/new/prefix1/trash.png"));
+    search_in_selected_artist->setIcon(QIcon(":/new/prefix1/search-128.png"));
+    change_artist_fullname->setIcon(QIcon(":/new/prefix1/change_name.png"));
+    change_artist_lastfmname->setIcon(QIcon(":/new/prefix1/lastfm-icon-png-g1.png"));
+    change_artist_facebook->setIcon(QIcon(":/new/prefix1/facebook-2.png"));
+
+    ui->pushButton->setIcon(QIcon(":/new/prefix1/start.png"));
+    ui->pushButton_2->setIcon(QIcon(":/new/prefix1/add.png"));
+    ui->pushButton_4->setIcon(QIcon(":/new/prefix1/stop_2.png"));
+    ui->pushButton_5->setIcon(QIcon(":/new/prefix1/clean_3.png"));
+    ui->pushButton_8->setIcon(QIcon(":/new/prefix1/settings.png"));
+
 
 
     artist_list_menu = new QMenu(parent);
     artist_list_menu->addAction(remove_from_artist_list);
+    artist_list_menu->addAction(search_in_selected_artist);
     artist_list_menu->addAction(change_artist_fullname);
     artist_list_menu->addAction(change_artist_lastfmname);
     artist_list_menu->addAction(change_artist_facebook);
-    artist_list_menu->addAction(change_artist_songkick);
-    artist_list_menu->addAction(find_similas_artist );
-    artist_list_menu->addAction(show_most_played_with_artists );
+    //artist_list_menu->addAction(change_artist_songkick);
+    //artist_list_menu->addAction(find_similas_artist );
+    //artist_list_menu->addAction(show_most_played_with_artists );
 
 
 
@@ -58,6 +74,9 @@ Graphics::Graphics(Ui::MainWindow *_ui, QWidget *parent): ui(_ui), my_parent(par
 
 
      connect(remove_from_artist_list, SIGNAL(triggered()), this, SLOT(on_remove_artist_from_table_clicked()));
+
+     connect(search_in_selected_artist, SIGNAL(triggered()), this, SLOT(on_search_only_selected()));
+
      connect(change_artist_fullname , SIGNAL(triggered()), this, SLOT(on_change_artist_full_name()));
      connect(change_artist_lastfmname, SIGNAL(triggered()), this, SLOT(on_change_artist_lastfm_name()));
      connect(change_artist_facebook, SIGNAL(triggered()), this, SLOT(on_change_artist_facebook_name()));
@@ -152,10 +171,12 @@ void Graphics::on_result_data(ArtistToken token){
             if(app_stettings.country == POLAND){
                   if(isPolish(token.events_country[i])){
                        fillRecord(i,token);
+                       emit concert_find_counter();
                   }
             }
             else {
                    fillRecord(i,token);
+                    emit concert_find_counter();
             }
         }
     }
@@ -166,12 +187,14 @@ void Graphics::on_result_data(ArtistToken token){
                     if(app_stettings.country == POLAND){
                         if(isPolish(token.events_country[i])){
                             fillRecord(i,token);
+                             emit concert_find_counter();
                             actual_event_was_find = true;
                             continue;
                         }
                     }else{
                         fillRecord(i,token);
                         actual_event_was_find = true;
+                        emit concert_find_counter();
                         continue;
                     }
                 }
@@ -179,11 +202,13 @@ void Graphics::on_result_data(ArtistToken token){
                 if(app_stettings.country == POLAND){
                     if(isPolish(token.events_country[i])){
                         fillRecord(i,token);
+                        emit concert_find_counter();
                         actual_event_was_find = false;
                     }
                 }
                 else {
                     fillRecord(i,token);
+                    emit concert_find_counter();
                     actual_event_was_find = false;
                 }
             }
@@ -308,6 +333,8 @@ void Graphics::getDefaultSettings( stettings_t app_sett){
 
 void Graphics::getArtisListAdress(QList<artist_names_t> *lista){
     lista_wykonawcow = lista;
+    max_tags_to_search = lista_wykonawcow->size() * 2;
+    ui->progressBar->setMaximum(max_tags_to_search);
     on_reflash_artist_list();
 }
 
@@ -366,6 +393,23 @@ void Graphics::on_remove_artist_from_table_clicked(){
             }
         }
     }
+}
+
+void Graphics::on_search_only_selected(){
+    QList<int> selected_index_list;
+    QModelIndexList selection = ui->tableView_3->selectionModel()->selectedRows();
+    for(int i=0; i< selection.count(); i++)
+    {
+        QModelIndex index = selection.at(i);
+        int num = index.row();
+        selected_index_list.append(num);
+        qDebug() << "zaznaczone do przeszukania "<< num;
+
+
+    }
+     emit search_in_selected_artist_signal(selected_index_list);
+
+
 }
 
 void Graphics::on_delete_press(){
@@ -465,6 +509,110 @@ void Graphics::on_change_artist_songkick_name(){
     }
     on_reflash_artist_list();
 }
+
+
+void Graphics::on_sarch_for_artist(QString key_word){
+    // qDebug() << "keyworld " <<key_word;
+    if(key_word != "Wpisz..."){
+        on_clear_artist_table(true);
+        QList<QStandardItem *> newRow;
+        if(!lista_wykonawcow->isEmpty()){
+            QList<artist_names_t>::iterator i;
+            for (i = lista_wykonawcow->begin(); i != lista_wykonawcow->end(); ++i){
+                newRow.clear();
+                if(i->full_name.contains(key_word,  Qt::CaseInsensitive)){
+
+                    _artist_table_model->appendRow(newRow);
+                }else
+                    continue;
+            }
+        }
+    }
+}
+
+
+void Graphics::lineEdit_focused(bool x)
+{
+    if(x && ui->my_lineEdit->text().length() <= 1){
+        ui->my_lineEdit->clear();
+    }
+    else
+    {
+        if(ui->my_lineEdit->text().isEmpty())
+            ui->my_lineEdit->setText("-");
+    }
+}
+void Graphics::lineEdit_2_focused(bool x)
+{
+    if(x && ui->my_lineEdit_2->text().length() <= 1){
+        ui->my_lineEdit_2->clear();
+        if(ui->my_lineEdit->text().size() > 1 && ui->my_lineEdit->text() != "-"){
+        QString artis_full_name_to_search = ui->my_lineEdit->text().replace("  ", "+");
+        emit search_for_last_fm_artist(artis_full_name_to_search);
+
+        }
+    }
+    else{
+        if(ui->my_lineEdit_2->text().isEmpty())
+            ui->my_lineEdit_2->setText("-");
+    }
+}
+void Graphics::lineEdit_3_focused(bool x) {
+    if(x && ui->my_lineEdit_3->text().length() <= 1){
+        ui->my_lineEdit_3->clear();}
+        if(ui->my_lineEdit->text().size() > 1 && ui->my_lineEdit->text() != "-"){
+        QString artis_full_name_to_search = ui->my_lineEdit->text().replace("  ","");
+         emit search_for_facebook_artist(artis_full_name_to_search);
+        }
+    else{
+        if(ui->my_lineEdit_3->text().isEmpty())
+            ui->my_lineEdit_3->setText("-");
+    }
+}
+void Graphics::lineEdit_4_focused(bool x) {
+    if(x && ui->my_lineEdit_4->text().length() <= 1){
+        ui->my_lineEdit_4->clear();}
+    else{
+        if(ui->my_lineEdit_4->text().isEmpty())
+            ui->my_lineEdit_4->setText("-");}
+}
+
+void Graphics::lineEdit_5_focused(bool x) {
+    if(x){ui->my_lineEdit_5->clear();}
+    else{
+        if(ui->my_lineEdit_5->text().isEmpty())
+            ui->my_lineEdit_5->setText("Wpisz...");}
+
+}
+
+
+
+void   Graphics::on_artist_was_find(QString name){
+    ui->my_lineEdit_2->setText(name);
+    ui->my_lineEdit_3->setFocus();
+
+}
+
+void   Graphics::on_artist_was_not_find(QString name){
+    ui->my_lineEdit_2->setText(name);
+    ui->my_lineEdit_3->setFocus();
+}
+
+
+void   Graphics::on_facebook_artist_was_find(QString name){
+    ui->my_lineEdit_3->setText(name);
+    ui->my_lineEdit_4->setFocus();
+
+}
+
+void   Graphics::on_facebook_artist_was_not_find(QString name){
+    ui->my_lineEdit_3->setText(name);
+    ui->my_lineEdit_4->setFocus();
+}
+
+
+
+
 
 
 

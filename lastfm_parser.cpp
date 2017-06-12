@@ -16,6 +16,10 @@ LASTFMParser::LASTFMParser(QObject *parent, QString link) : QObject(parent)
     event.exec();
 
     data_to_parse = response->readAll();
+    qDebug() << data_to_parse;
+
+
+
     removePolishCharacters(&data_to_parse);
 
 }
@@ -24,14 +28,18 @@ LASTFMParser::LASTFMParser(QObject *parent, QString link) : QObject(parent)
 
 void LASTFMParser::parseDataFromHTMLFile(void){
     int i;
+    bool web_content_flag = false;
     if(data_to_parse.isEmpty()){
         qDebug() <<"Error: Fail to get web content ";
+        web_content_flag = false;
     }
     if(data_to_parse.contains("We don't have any upcoming events for")){
         qDebug() <<"There is no event for this artist";
+        web_content_flag = true;
     }
     else {
         i = 0;
+        web_content_flag = true;
         artist_token->occurance_tab[i] = data_to_parse.indexOf("<time datetime=", 0);
         saveEventDate(&artist_token->events_date[i], artist_token->occurance_tab[i]);
         saveEventName(&artist_token->events_name[i], artist_token->occurance_tab[i]);
@@ -41,39 +49,39 @@ void LASTFMParser::parseDataFromHTMLFile(void){
         //qDebug()<< "data = " << artist_token->events_date[i];
         artist_token->events_date[i].replace(" ", "");
         //qDebug()<< "name = " << artist_token->events_name[i];
-         artist_token->events_name[i].replace(" ", "");
+        artist_token->events_name[i].replace(" ", "");
         //qDebug()<< "city = " << artist_token->events_city[i];
-         artist_token->events_city[i].replace("  ", " ");
+        artist_token->events_city[i].replace("  ", " ");
         //qDebug()<< "country = " << artist_token->events_country[i];
         artist_token->events_country[i].replace("  ", " ");
-         generateEventRecord(i);
+        generateEventRecord(i);
 
 
-        while( artist_token->occurance_tab[i] != -1){
-            i++;
-            artist_token->occurance_no++;
-            artist_token->occurance_tab[i] = data_to_parse.indexOf("<time datetime=", artist_token->occurance_tab[i- 1]+ 15);
-            saveEventDate(&artist_token->events_date[i], artist_token->occurance_tab[i]);
-            artist_token->events_date[i].replace("  ", "");
-            saveEventName(&artist_token->events_name[i], artist_token->occurance_tab[i]);
-            artist_token->events_name[i].replace("  ", "");
-            saveEventCity(&artist_token->events_city[i], artist_token->occurance_tab[i]);
-            artist_token->events_city[i].replace("  ", " ");
-            saveEventCountry(&artist_token->events_country[i], artist_token->occurance_tab[i]);
-            artist_token->events_country[i].replace("  ", " ");
+        if(web_content_flag){
+            while( artist_token->occurance_tab[i] != -1){
+                i++;
+                artist_token->occurance_no++;
+                artist_token->occurance_tab[i] = data_to_parse.indexOf("<time datetime=", artist_token->occurance_tab[i- 1]+ 15);
+                saveEventDate(&artist_token->events_date[i], artist_token->occurance_tab[i]);
+                artist_token->events_date[i].replace("  ", "");
+                saveEventName(&artist_token->events_name[i], artist_token->occurance_tab[i]);
+                artist_token->events_name[i].replace("  ", "");
+                saveEventCity(&artist_token->events_city[i], artist_token->occurance_tab[i]);
+                artist_token->events_city[i].replace("  ", " ");
+                saveEventCountry(&artist_token->events_country[i], artist_token->occurance_tab[i]);
+                artist_token->events_country[i].replace("  ", " ");
+            }
+            for(i = 0; i < artist_token->occurance_no; i++){
+                // qDebug() << QString::number(artist_token->occurance_tab[i]);
+                //            qDebug()<< "data = " << artist_token->events_date[i];
+                //            qDebug()<< "name = " << artist_token->events_name[i];
+                //            qDebug()<< "city = " << artist_token->events_city[i];
+                //            qDebug()<< "country = " << artist_token->events_country[i];
+                generateEventRecord(i);
 
+            }
 
         }
-        for(i = 0; i < artist_token->occurance_no; i++){
-           // qDebug() << QString::number(artist_token->occurance_tab[i]);
-//            qDebug()<< "data = " << artist_token->events_date[i];
-//            qDebug()<< "name = " << artist_token->events_name[i];
-//            qDebug()<< "city = " << artist_token->events_city[i];
-//            qDebug()<< "country = " << artist_token->events_country[i];
-            generateEventRecord(i);
-
-        }
-
     }
 }
 

@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/new/prefix1">
+        <file>trash.png</file>
+        <file>search-128.png</file>
+        <file>change_name.png</file>
+        <file>facebook-2.png</file>
+        <file>last_fm.png</file>
+        <file>lastfm-icon-png-g1.png</file>
+        <file>add.png</file>
+        <file>clear.jpg</file>
+        <file>pause.png</file>
+        <file>settings.png</file>
+        <file>start.png</file>
+        <file>stop.png</file>
+        <file>clean_2.png</file>
+        <file>stop_2.png</file>
+        <file>clean_3.png</file>
+    </qresource>
+</RCC>

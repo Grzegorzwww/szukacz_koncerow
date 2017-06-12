@@ -11,6 +11,7 @@
 #include <QDir>
 #include <QApplication>
 #include <QStandardPaths>
+#include <QMessageBox>
 
 static const QString SETTINGS_ORG = "szukacz_koncertow";
 static const QString  SETTINGS_APP_NAME = "szukacz koncertow";
@@ -81,6 +82,7 @@ private:
 
 public slots:
     void on_settings_changed(bool x);
+    void on_about_author(bool x);
     void on_send_settings();
     void on_load_settings(bool x);
 

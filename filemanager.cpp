@@ -7,35 +7,36 @@ filemanager::filemanager(void )
 
 
 void filemanager::save_artist_list(QList<artist_names_t> &lista_wykonawcow){
-    if(!lista_wykonawcow.isEmpty()){
+    if(lista_wykonawcow.size() > 0){
         int index = 0;
         QList<artist_names_t>::iterator i;
-        qDebug() << "!lista_wykonawcow.isEmpty()";
+        qDebug() << "lista_wykonawcow.size() > 0)";
+        std::cout << "lista_wykonawcow.size() > 0"<< std::endl;
         if(fileExists(ARTIST_LOG_NAME)){
-            qDebug() << "PLIK ISTNIEJE";
             QFile::remove(ARTIST_LOG_NAME);
         }
             QJsonArray file_struct_array;
             QFile log(ARTIST_LOG_NAME);
-            log.open(QIODevice::ReadWrite |  QIODevice::Text);
+            if(log.open(QIODevice::ReadWrite |  QIODevice::Text)){
+                qDebug() << "przygotowanie do zapisu, otwarcie ok";
+                std::cout << "przygotowanie do zapisu, otwarcie ok" << std::endl;
+            }
             QTextStream outStream(&log);
             for (i = lista_wykonawcow.begin(); i != lista_wykonawcow.end(); ++i){
                 QJsonObject object;
                 QJsonArray tablica = {i->lastfm_name, i->fb_name, i->songkick_name};
-
                 object["index"] = ++index;
                 object["artist name"] = i->full_name;
                 object["artist_tags"] = tablica;
                 file_struct_array << object;
-
-                qDebug() << i->full_name;
             }
             QJsonDocument document(file_struct_array);
             qDebug() << document.toJson(QJsonDocument::Indented);
-             outStream << document.toJson(QJsonDocument::Indented);
-             log.close();
+            outStream << document.toJson(QJsonDocument::Indented);
+            log.close();
         }
        qDebug() << "Brak wykonawcow do zapisania";
+       std::cout <<"przygotowanie do zapisu, otwarcie ok"<< std::endl;
 
      }
 
@@ -43,7 +44,8 @@ void filemanager::save_artist_list(QList<artist_names_t> &lista_wykonawcow){
 void filemanager::read_artist_list(QList<artist_names_t> &lista_wykonawcow){
 
     if(fileExists(ARTIST_LOG_NAME)){
-
+         qDebug() << "plik instnieje";
+          std::cout <<"plik instnieje"<< std::endl;
         QFile log(ARTIST_LOG_NAME);
         if(!log.open(QIODevice::ReadOnly |  QIODevice::Text)){
             qDebug() << log.errorString();
@@ -53,9 +55,8 @@ void filemanager::read_artist_list(QList<artist_names_t> &lista_wykonawcow){
 
             QJsonDocument document = QJsonDocument::fromJson(log.readAll());
 
-          QJsonArray file_struct_array = document.array();
+            QJsonArray file_struct_array = document.array();
 
-            //QJsonArray file_struct_array(document);
             QJsonObject event_obj;
 
             foreach(const QJsonValue &value, file_struct_array ){
@@ -66,7 +67,7 @@ void filemanager::read_artist_list(QList<artist_names_t> &lista_wykonawcow){
                 QJsonArray artist_tags = event_obj["artist_tags"].toArray();
                 temp_artist.songkick_name = artist_tags[2].toString();
                 temp_artist.fb_name = artist_tags[1].toString();
-                temp_artist.lastfm_name = artist_tags[1].toString();
+                temp_artist.lastfm_name = artist_tags[0].toString();
 
 
 
@@ -74,14 +75,19 @@ void filemanager::read_artist_list(QList<artist_names_t> &lista_wykonawcow){
             }
         }
     }
+    else {
+        qDebug() << "plik nie instnieje";
+         std::cout << "plik nie instnieje"<< std::endl;
+
+    }
 
      QList<artist_names_t>::iterator i;
        for (i = lista_wykonawcow.begin(); i != lista_wykonawcow.end(); ++i){
-           qDebug() << "i->token_no;" << i->token_no;
-           qDebug() << "i->full_name;" << i->full_name;
-           qDebug() << "i->lastfm_name" << i->lastfm_name;
-           qDebug() << "i->fb_name" << i->fb_name;
-           qDebug() << "i->songkick_name" << i->songkick_name;
+//           qDebug() << "i->token_no;" << i->token_no;
+//           qDebug() << "i->full_name;" << i->full_name;
+//           qDebug() << "i->lastfm_name" << i->lastfm_name;
+//           qDebug() << "i->fb_name" << i->fb_name;
+//           qDebug() << "i->songkick_name" << i->songkick_name;
        }
 }
 

@@ -26,7 +26,11 @@ AppSetting::AppSetting(QWidget *parent) :
     connect(ui->radioButton_2, SIGNAL(clicked(bool)), this, SLOT(on_settings_changed(bool)));
     connect(ui->radioButton_3, SIGNAL(clicked(bool)), this, SLOT(on_settings_changed(bool)));
     connect(ui->radioButton_4, SIGNAL(clicked(bool)), this, SLOT(on_settings_changed(bool)));
-    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(on_send_settings()));
+
+
+
+    connect(ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(on_about_author(bool)));
+//    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(on_send_settings()));
 
 
 
@@ -42,6 +46,11 @@ AppSetting::AppSetting(QWidget *parent) :
 AppSetting::~AppSetting()
 {
     delete ui;
+}
+
+void AppSetting::on_about_author(bool x){
+     QMessageBox::information(this, tr("Informacje"), "Nazwa Programu: Szukacz koncertow\nAutor: Grzegorz Warchol\ne-mail: grzegorzw@is.net.pl \nveria: 2");
+
 }
 
 void AppSetting::on_settings_changed(bool x){
@@ -144,7 +153,6 @@ void AppSetting::on_settings_changed(bool x){
  }
 
 
-
  void AppSetting::loadSettings(){
     QString m_sSettingsFile = QApplication::applicationDirPath()/*.left(1)*/ + "/settings.ini";
     QSettings settings(m_sSettingsFile, QSettings::IniFormat);    // windows
@@ -155,18 +163,6 @@ void AppSetting::on_settings_changed(bool x){
     app_stettings.only_actual = settings.value(SETTINGS_ONLY_ACTUAL_DATE, true).toBool();
 
     settings.endGroup();
-
-//    qDebug() <<  "app_stettings.country" <<  app_stettings.country;
-//    qDebug() <<  "app_stettings.highlight" <<  app_stettings.highlight;
-//    qDebug() <<  "app_stettings.auto_scroll" <<   app_stettings.auto_scroll;
-//    qDebug() <<  "app_stettings.save_in_file" <<  app_stettings.save_in_file;
-//    qDebug() <<  "app_stettings.only_actual" <<  app_stettings.only_actual;
-//    qDebug() <<  "app_stettings.string_path" <<  app_stettings.string_path;
-//    qDebug() <<  "app_stettings.filename" <<  app_stettings.filename;
-//    qDebug() <<  "app_stettings.first_day.long_day_name" <<  app_stettings.first_day.long_day_name;
-//    qDebug() <<  "app_stettings.first_day.no" <<  app_stettings.first_day.no;
-//    qDebug() <<  "app_stettings.second_day.long_day_name" <<  app_stettings.second_day.long_day_name;
-//    qDebug() <<  "app_stettings.second_day.no" <<  app_stettings.second_day.no;
 
 
  }
